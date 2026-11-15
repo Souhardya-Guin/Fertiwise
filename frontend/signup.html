@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Up | FertiWise</title>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("fertwise_theme") || "light";
+            document.documentElement.dataset.theme =
+                savedTheme === "dark" ? "dark" : "light";
+        })();
+    </script>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f0f8f1;
+            --card: rgba(255, 255, 255, .96);
+            --text: #183323;
+            --muted: #718078;
+            --input: #f8fbf8;
+            --border: #dce9df;
+            --accent: #168342;
+            --accent-dark: #106b35;
+            --soft: #e8f5eb;
+            --shadow: rgba(22, 101, 52, .13);
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #0b1710;
+            --card: #17271d;
+            --text: #e5f4e9;
+            --muted: #a6b8aa;
+            --input: #20352a;
+            --border: #3a5944;
+            --accent: #86efac;
+            --accent-dark: #4ade80;
+            --soft: #244632;
+            --shadow: rgba(0, 0, 0, .35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: var(--bg) !important;
+            color: var(--text) !important;
+            transition: background .3s ease, color .3s ease;
+        }
+
+        header,
+        .navbar {
+            background: var(--card) !important;
+            color: var(--text) !important;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            padding: 15px 5%;
+        }
+
+        .navbar .logo {
+            color: var(--text) !important;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--text) !important;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent) !important;
+        }
+
+        .theme-toggle,
+        .language-select {
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--soft);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-section {
+            min-height: calc(100vh - 70px);
+            padding: 55px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(34, 197, 94, .15), transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(21, 128, 61, .13), transparent 30%),
+                var(--bg) !important;
+        }
+
+        .auth-section::before,
+        .auth-section::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, .08);
+            pointer-events: none;
+        }
+
+        .auth-section::before {
+            width: 240px;
+            height: 240px;
+            top: -90px;
+            left: -70px;
+        }
+
+        .auth-section::after {
+            width: 300px;
+            height: 300px;
+            bottom: -140px;
+            right: -100px;
+        }
+
+        .auth-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 465px;
+            padding: 38px 40px;
+            border-radius: 25px;
+            background: var(--card) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--border);
+            box-shadow: 0 22px 65px var(--shadow);
+            animation: cardAppear .6s ease;
+            transition: .3s ease;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 26px 75px var(--shadow);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signup-language {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .signup-language span {
+            color: var(--accent) !important;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            font-size: 35px;
+            box-shadow: 0 8px 20px rgba(22, 163, 74, .12);
+        }
+
+        .auth-header h1 {
+            font-size: 29px;
+            font-weight: 800;
+            margin: 0 0 9px;
+            color: var(--text) !important;
+        }
+
+        .auth-header p {
+            color: var(--muted) !important;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text) !important;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select {
+            display: block;
+            width: 100%;
+            min-height: 49px;
+            padding: 13px 15px;
+            border: 1px solid var(--border) !important;
+            border-radius: 12px;
+            background: var(--input) !important;
+            color: var(--text) !important;
+            font-size: 14px;
+            outline: none;
+            transition: .25s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--muted) !important;
+            opacity: .85;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, .13);
+            background: var(--card) !important;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option,
+        .form-group select optgroup {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .password-input {
+            padding-right: 52px !important;
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 19px;
+            padding: 5px;
+            border-radius: 7px;
+        }
+
+        .password-toggle:hover {
+            background: var(--soft);
+            color: var(--accent);
+        }
+
+        .password-hint {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted) !important;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .auth-btn {
+            width: 100%;
+            min-height: 51px;
+            margin-top: 5px;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #16a34a, #15803d) !important;
+            color: #fff !important;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(21, 128, 61, .20);
+            transition: .25s ease;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(21, 128, 61, .28);
+            background: linear-gradient(135deg, #15803d, #166534) !important;
+        }
+
+        .auth-btn:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 13px;
+            color: var(--muted) !important;
+        }
+
+        .auth-footer p {
+            color: var(--muted) !important;
+        }
+
+        .auth-footer a {
+            color: var(--accent) !important;
+            font-weight: 800;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        html[data-theme="dark"] .auth-icon {
+            background: linear-gradient(135deg, #244632, #315c3e);
+        }
+
+        html[data-theme="dark"] .theme-toggle,
+        html[data-theme="dark"] .language-select {
+            background: var(--soft) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                justify-content: center;
+            }
+
+            .nav-links {
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .auth-section {
+                padding: 35px 15px;
+            }
+
+            .auth-card {
+                padding: 30px 23px;
+                border-radius: 20px;
+            }
+
+            .auth-header h1 {
+                font-size: 25px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">🌱 FertiWise</div>
+
+            <div class="nav-links">
+
+                <a href="index.html" data-i18n="home">Home</a>
+
+                <a href="login.html" data-i18n="login">Login</a>
+
+                <button type="button" class="theme-toggle" id="themeToggle">
+                    🌙 Dark Mode
+                </button>
+
+                <select id="languageSelect" class="language-select" aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="auth-section">
+
+            <div class="auth-card">
+
+                <div class="signup-language">
+                    <span data-i18n="languageLabel">Select Language</span>
+                </div>
+
+                <div class="auth-header">
+
+                    <div class="auth-icon">🌱</div>
+
+                    <h1 data-i18n="createAccount">Create Account</h1>
+
+                    <p data-i18n="signupIntro">
+                        Join FertiWise and start smart farming
+                    </p>
+
+                </div>
+
+                <form id="signupForm">
+
+                    <!-- 1. FULL NAME -->
+                    <div class="form-group">
+
+                        <label for="name" data-i18n="fullName">Full Name</label>
+
+                        <input type="text" id="name" placeholder="Enter your full name"
+                            data-i18n-placeholder="namePlaceholder" autocomplete="name" maxlength="100" required>
+
+                    </div>
+
+                    <!-- 2. EMAIL -->
+                    <div class="form-group">
+
+                        <label for="signupEmail" data-i18n="emailAddress">Email Address</label>
+
+                        <input type="email" id="signupEmail" placeholder="Enter your email"
+                            data-i18n-placeholder="emailPlaceholder" autocomplete="email" maxlength="254" required>
+
+                    </div>
+
+                    <!-- 3. MOBILE -->
+                    <div class="form-group">
+
+                        <label for="mobileNumber">Mobile Number</label>
+
+                        <input type="tel" id="mobileNumber" placeholder="Enter 10-digit mobile number"
+                            autocomplete="tel" maxlength="13" inputmode="tel" required>
+
+                    </div>
+
+                    <!-- 4. PASSWORD -->
+                    <div class="form-group">
+
+                        <label for="signupPassword" data-i18n="password">Password</label>
+
+                        <div class="input-wrapper">
+
+                            <input type="password" id="signupPassword" class="password-input"
+                                placeholder="Create a strong password" data-i18n-placeholder="passwordPlaceholder"
+                                autocomplete="new-password" required>
+
+                            <button type="button" class="password-toggle" id="toggleSignupPassword"
+                                aria-label="Show password" title="Show password">👁</button>
+
+                        </div>
+
+                        <small class="password-hint" data-i18n="passwordHint">
+                            Use 8+ characters with uppercase, lowercase,
+                            number and special character.
+                        </small>
+
+                    </div>
+
+                    <!-- 5. CONFIRM PASSWORD -->
+                    <div class="form-group">
+
+                        <label for="confirmPassword" data-i18n="confirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <input type="password" id="confirmPassword" class="password-input"
+                                placeholder="Confirm your password" data-i18n-placeholder="confirmPasswordPlaceholder"
+                                autocomplete="new-password" required>
+
+                            <button type="button" class="password-toggle" id="toggleConfirmPassword"
+                                aria-label="Show password" title="Show password">👁</button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- 6. STATE / UNION TERRITORY -->
+                    <div class="form-group">
+
+                        <label for="signupState">
+                            State / Union Territory
+                        </label>
+
+                        <select id="signupState" autocomplete="address-level1" required>
+
+                            <option value="" disabled selected>
+                                Select your State / UT
+                            </option>
+
+                            <optgroup label="States">
+
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+
+                            </optgroup>
+
+                            <optgroup label="Union Territories">
+
+                                <option value="Andaman and Nicobar Islands">
+                                    Andaman and Nicobar Islands
+                                </option>
+
+                                <option value="Chandigarh">Chandigarh</option>
+
+                                <option value="Dadra and Nagar Haveli and Daman and Diu">
+                                    Dadra and Nagar Haveli and Daman and Diu
+                                </option>
+
+                                <option value="Delhi">Delhi</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Puducherry">Puducherry</option>
+
+                            </optgroup>
+
+                        </select>
+
+                    </div>
+
+                    <!-- 7. LANGUAGE PREFERENCE -->
+                    <div class="form-group">
+
+                        <label for="signupLanguagePreference">
+                            Language Preference
+                        </label>
+
+                        <select id="signupLanguagePreference" required>
+
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="bn">বাংলা</option>
+
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="auth-btn" data-i18n="createAccount">
+                        Create Account
+                    </button>
+
+                </form>
+
+                <div class="auth-footer">
+
+                    <p>
+                        <span data-i18n="alreadyAccount">
+                            Already have an account?
+                        </span>
+
+                        <a href="login.html" data-i18n="login">Login</a>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+    </main>
+
+    <!-- THEME MANAGEMENT -->
+    <script>
+
+        const themeToggle = document.getElementById("themeToggle");
+
+        function applyTheme(theme) {
+
+            const selectedTheme =
+                theme === "dark" ? "dark" : "light";
+
+            document.documentElement.dataset.theme = selectedTheme;
+
+            localStorage.setItem("fertwise_theme", selectedTheme);
+
+            themeToggle.textContent =
+                selectedTheme === "dark"
+                    ? "☀️ Light Mode"
+                    : "🌙 Dark Mode";
+
+            themeToggle.setAttribute(
+                "aria-label",
+                selectedTheme === "dark"
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+            );
+        }
+
+        applyTheme(localStorage.getItem("fertwise_theme") || "light");
+
+        themeToggle.addEventListener("click", function () {
+
+            const currentTheme =
+                document.documentElement.dataset.theme;
+
+            applyTheme(
+                currentTheme === "dark" ? "light" : "dark"
+            );
+
+        });
+
+    </script>
+
+    <!-- PASSWORD VISIBILITY -->
+    <script>
+
+        function setupPasswordToggle(inputId, buttonId) {
+
+            const passwordInput = document.getElementById(inputId);
+            const toggleButton = document.getElementById(buttonId);
+
+            toggleButton.addEventListener("click", function () {
+
+                const isPassword = passwordInput.type === "password";
+
+                passwordInput.type = isPassword ? "text" : "password";
+
+                toggleButton.textContent = isPassword ? "🙈" : "👁";
+
+                toggleButton.setAttribute(
+                    "aria-label",
+                    isPassword ? "Hide password" : "Show password"
+                );
+
+                toggleButton.setAttribute(
+                    "title",
+                    isPassword ? "Hide password" : "Show password"
+                );
+
+            });
+        }
+
+        setupPasswordToggle("signupPassword", "toggleSignupPassword");
+        setupPasswordToggle("confirmPassword", "toggleConfirmPassword");
+
+    </script>
+
+    <!-- EXISTING JAVASCRIPT FILES -->
+    <script src="js/script.js"></script>
+    <script src="js/language.js"></script>
+
+</body>
+
+</html>

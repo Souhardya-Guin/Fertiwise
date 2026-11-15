@@ -1,0 +1,595 @@
+/* ================================
+   FertiWise - Global Styles
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f7faf7;
+    color: #222;
+}
+
+
+/* ================================
+   Navigation
+================================ */
+
+.navbar {
+    height: 72px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 7%;
+
+    background: white;
+
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #222;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: #2e7d32;
+}
+
+.signup-btn {
+    padding: 10px 18px;
+
+    background: #2e7d32;
+
+    color: white !important;
+
+    border-radius: 8px;
+}
+
+
+/* ================================
+   Hero Section
+================================ */
+
+.hero {
+    min-height: 560px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 80px 8%;
+
+    background:
+        linear-gradient(135deg,
+            #f1f8f1,
+            #ffffff);
+}
+
+.hero-content {
+    max-width: 750px;
+}
+
+.small-title {
+    margin-bottom: 15px;
+
+    color: #2e7d32;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+}
+
+.hero h1 {
+    font-size: 58px;
+
+    line-height: 1.12;
+
+    margin-bottom: 25px;
+}
+
+.hero h1 span {
+    display: block;
+
+    color: #2e7d32;
+}
+
+.hero-description {
+    max-width: 650px;
+
+    color: #555;
+
+    font-size: 18px;
+
+    line-height: 1.7;
+
+    margin-bottom: 32px;
+}
+
+
+/* ================================
+   Buttons
+================================ */
+
+.hero-buttons {
+    display: flex;
+
+    gap: 15px;
+}
+
+.primary-btn,
+.secondary-btn {
+    display: inline-block;
+
+    padding: 14px 23px;
+
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition: 0.2s;
+}
+
+.primary-btn {
+    background: #2e7d32;
+
+    color: white;
+}
+
+.primary-btn:hover {
+    background: #1b5e20;
+}
+
+.secondary-btn {
+    border: 2px solid #2e7d32;
+
+    color: #2e7d32;
+}
+
+.secondary-btn:hover {
+    background: #2e7d32;
+
+    color: white;
+}
+
+
+/* ================================
+   Features
+================================ */
+
+.features {
+    padding: 80px 8%;
+}
+
+.section-heading {
+    text-align: center;
+
+    margin-bottom: 45px;
+}
+
+.section-heading p {
+    color: #2e7d32;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 10px;
+}
+
+.section-heading h2 {
+    font-size: 34px;
+}
+
+
+.feature-container {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 25px;
+
+    flex-wrap: wrap;
+}
+
+.feature-card {
+    width: 270px;
+
+    padding: 30px;
+
+    background: white;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 25px rgba(0, 0, 0, 0.07);
+
+    transition: 0.25s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon {
+    font-size: 40px;
+
+    margin-bottom: 18px;
+}
+
+.feature-card h3 {
+    margin-bottom: 12px;
+
+    font-size: 19px;
+}
+
+.feature-card p {
+    color: #666;
+
+    line-height: 1.6;
+
+    font-size: 14px;
+}
+
+
+/* ================================
+   Footer
+================================ */
+
+footer {
+    padding: 25px;
+
+    text-align: center;
+
+    background: #1b1b1b;
+
+    color: white;
+
+    font-size: 14px;
+}
+
+
+/* ================================
+   Responsive Design
+================================ */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        padding: 0 4%;
+    }
+
+    .nav-links {
+        gap: 10px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+    }
+
+    .signup-btn {
+        padding: 8px 12px;
+    }
+
+    .hero {
+        padding: 60px 5%;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .hero-description {
+        font-size: 16px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .features {
+        padding: 60px 5%;
+    }
+
+    .section-heading h2 {
+        font-size: 28px;
+    }
+
+}
+
+/* ================================
+   Authentication Pages
+================================ */
+
+.auth-section {
+    min-height: calc(100vh - 72px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 50px 20px;
+
+    background: #f7faf7;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 40px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+.auth-icon {
+    font-size: 42px;
+
+    margin-bottom: 10px;
+}
+
+.auth-header h1 {
+    font-size: 30px;
+
+    margin-bottom: 8px;
+}
+
+.auth-header p {
+    color: #777;
+
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #2e7d32;
+
+    box-shadow:
+        0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.form-options {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    font-size: 13px;
+}
+
+.form-options label {
+    display: flex;
+
+    gap: 6px;
+
+    align-items: center;
+}
+
+.form-options a {
+    color: #2e7d32;
+
+    text-decoration: none;
+}
+
+.auth-btn {
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2e7d32;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.auth-btn:hover {
+    background: #1b5e20;
+}
+
+.auth-footer {
+    text-align: center;
+
+    margin-top: 25px;
+
+    font-size: 14px;
+
+    color: #666;
+}
+
+.auth-footer a {
+    color: #2e7d32;
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+.password-hint {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #777;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+/* =====================================
+   FertiWise HOME PAGE - DARK MODE FIX
+   ===================================== */
+
+/* Light theme defaults */
+body.home-page {
+    background: #f7faf7;
+    color: #222;
+}
+
+body.home-page .navbar {
+    background: #ffffff;
+    color: #222;
+}
+
+body.home-page .navbar a {
+    color: #222;
+}
+
+body.home-page .hero {
+    background: linear-gradient(135deg, #f1f8f1, #ffffff);
+}
+
+body.home-page .hero h1,
+body.home-page .section-heading h2,
+body.home-page .feature-card h3 {
+    color: #222;
+}
+
+body.home-page .hero-description,
+body.home-page .feature-card p {
+    color: #555;
+}
+
+body.home-page .features {
+    background: #f7faf7;
+}
+
+body.home-page .feature-card {
+    background: #ffffff;
+    color: #222;
+}
+
+/* Dark theme */
+html[data-theme="dark"] body.home-page {
+    background: #101810 !important;
+    color: #f1f5f1 !important;
+}
+
+html[data-theme="dark"] body.home-page .navbar {
+    background: #172317 !important;
+    color: #f1f5f1 !important;
+    border-bottom: 1px solid #304330;
+}
+
+html[data-theme="dark"] body.home-page .navbar a {
+    color: #f1f5f1 !important;
+}
+
+html[data-theme="dark"] body.home-page .hero {
+    background: linear-gradient(135deg, #101810, #1b2b1b) !important;
+    color: #f1f5f1 !important;
+}
+
+html[data-theme="dark"] body.home-page .hero h1,
+html[data-theme="dark"] body.home-page .section-heading h2,
+html[data-theme="dark"] body.home-page .feature-card h3 {
+    color: #f1f5f1 !important;
+}
+
+html[data-theme="dark"] body.home-page .hero-description,
+html[data-theme="dark"] body.home-page .feature-card p {
+    color: #c0ccc0 !important;
+}
+
+html[data-theme="dark"] body.home-page .features {
+    background: #101810 !important;
+    color: #f1f5f1 !important;
+}
+
+html[data-theme="dark"] body.home-page .feature-card {
+    background: #1b2b1b !important;
+    color: #f1f5f1 !important;
+    border: 1px solid #354b35;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme="dark"] body.home-page .small-title,
+html[data-theme="dark"] body.home-page .section-heading p {
+    color: #81c784 !important;
+}
+
+html[data-theme="dark"] body.home-page .secondary-btn {
+    color: #81c784 !important;
+    border-color: #81c784 !important;
+}
+
+html[data-theme="dark"] body.home-page .secondary-btn:hover {
+    background: #2e7d32 !important;
+    color: white !important;
+}

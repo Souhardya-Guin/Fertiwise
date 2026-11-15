@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FertiWise | Smart Farming with AI</title>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("fertwise_theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root {
+            --bg: #f5faf4;
+            --surface: #ffffff;
+            --text: #173322;
+            --muted: #647568;
+            --green: #168344;
+            --green-dark: #0d6031;
+            --border: #e0ebe0;
+            --shadow: 0 15px 45px rgba(20, 70, 35, 0.10);
+        }
+
+        html[data-theme="dark"] {
+            --bg: #101b15;
+            --surface: #19271e;
+            --text: #eff8f0;
+            --muted: #b1c3b4;
+            --green: #55cb80;
+            --green-dark: #9be8ad;
+            --border: #304438;
+            --shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body.home-page {
+            margin: 0;
+            background: var(--bg) !important;
+            color: var(--text) !important;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            transition: background .3s, color .3s;
+        }
+
+        body.home-page .navbar {
+            background: var(--surface) !important;
+            color: var(--text) !important;
+            border-bottom: 1px solid var(--border);
+            padding: 15px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .home-page .logo {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--green) !important;
+        }
+
+        .home-page .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .home-page .nav-links a {
+            color: var(--text) !important;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .home-page .nav-links a:hover {
+            color: var(--green) !important;
+        }
+
+        .home-page .theme-btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 25px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .home-page .language-select {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px;
+        }
+
+        /* HERO */
+
+        .home-page .hero {
+            background: var(--bg) !important;
+            padding: 75px 7% 85px;
+            min-height: 590px;
+            display: flex;
+            align-items: center;
+        }
+
+        .home-page .hero-container {
+            width: 100%;
+            max-width: 1250px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 55px;
+        }
+
+        .home-page .hero-content {
+            max-width: 570px;
+        }
+
+        .home-page .small-title {
+            display: inline-block;
+            background: rgba(30, 160, 80, 0.12);
+            color: var(--green) !important;
+            padding: 9px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .home-page .hero-content h1 {
+            font-size: clamp(38px, 5vw, 60px);
+            line-height: 1.13;
+            margin: 0 0 22px;
+            color: var(--text) !important;
+            font-weight: 800;
+        }
+
+        .home-page .hero-content h1 span {
+            color: var(--green) !important;
+        }
+
+        .home-page .hero-description {
+            font-size: 17px;
+            line-height: 1.8;
+            color: var(--muted) !important;
+            margin-bottom: 30px;
+        }
+
+        .home-page .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .home-page .primary-btn,
+        .home-page .secondary-btn {
+            display: inline-block;
+            padding: 14px 23px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: .3s;
+        }
+
+        .home-page .primary-btn {
+            background: var(--green) !important;
+            color: white !important;
+            box-shadow: 0 8px 22px rgba(22, 131, 68, .2);
+        }
+
+        .home-page .secondary-btn {
+            border: 1px solid var(--green);
+            color: var(--green) !important;
+            background: transparent;
+        }
+
+        .home-page .primary-btn:hover,
+        .home-page .secondary-btn:hover {
+            transform: translateY(-4px);
+        }
+
+        /* FARMER VIDEO */
+
+        .home-page .hero-visual {
+            position: relative;
+            width: 100%;
+            max-width: 570px;
+            margin: auto;
+            animation: floatVideo 5s ease-in-out infinite;
+        }
+
+        .home-page .video-frame {
+            position: relative;
+            height: 410px;
+            overflow: hidden;
+            border-radius: 28px;
+            border: 6px solid var(--surface);
+            box-shadow: var(--shadow);
+            background: #dcebdc;
+        }
+
+        .home-page .farmer-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .home-page .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, .35), transparent 50%);
+            pointer-events: none;
+        }
+
+        .home-page .video-caption {
+            position: absolute;
+            left: 22px;
+            bottom: 20px;
+            color: white;
+            font-weight: 700;
+            font-size: 17px;
+            z-index: 2;
+        }
+
+        /* FLOATING CARDS */
+
+        .home-page .floating-card {
+            position: absolute;
+            background: var(--surface);
+            color: var(--text);
+            padding: 15px 18px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            z-index: 3;
+            animation: floatCard 4s ease-in-out infinite;
+        }
+
+        .home-page .ai-card {
+            top: 35px;
+            left: -35px;
+        }
+
+        .home-page .soil-card {
+            bottom: 35px;
+            right: -30px;
+            animation-delay: 1s;
+        }
+
+        .home-page .card-heading {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .home-page .card-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .home-page .card-icon {
+            font-size: 23px;
+            margin-right: 6px;
+        }
+
+        @keyframes floatVideo {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-9px);
+            }
+        }
+
+        @keyframes floatCard {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* FEATURES */
+
+        .home-page .features {
+            padding: 75px 7%;
+            background: var(--surface) !important;
+        }
+
+        .home-page .section-heading {
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 40px;
+        }
+
+        .home-page .section-heading h2 {
+            font-size: 34px;
+            color: var(--text) !important;
+            margin-bottom: 12px;
+        }
+
+        .home-page .section-heading p {
+            color: var(--muted) !important;
+            line-height: 1.7;
+        }
+
+        .home-page .feature-container {
+            max-width: 1150px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .home-page .feature-card {
+            padding: 30px 24px;
+            background: var(--bg) !important;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            transition: .3s;
+        }
+
+        .home-page .feature-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .home-page .feature-card .icon {
+            font-size: 34px;
+            margin-bottom: 15px;
+        }
+
+        .home-page .feature-card h3 {
+            color: var(--text) !important;
+            margin-bottom: 10px;
+        }
+
+        .home-page .feature-card p {
+            color: var(--muted) !important;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+
+        .home-page footer {
+            background: var(--surface) !important;
+            color: var(--muted) !important;
+            text-align: center;
+            padding: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media(max-width: 900px) {
+            .home-page .hero-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .home-page .hero-content {
+                max-width: 700px;
+                text-align: center;
+                margin: auto;
+            }
+
+            .home-page .hero-buttons {
+                justify-content: center;
+            }
+
+            .home-page .hero-visual {
+                max-width: 600px;
+            }
+
+            .home-page .feature-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 600px) {
+            body.home-page .navbar {
+                justify-content: center;
+            }
+
+            .home-page .nav-links {
+                justify-content: center;
+                gap: 13px;
+            }
+
+            .home-page .hero {
+                padding: 50px 6%;
+            }
+
+            .home-page .video-frame {
+                height: 280px;
+            }
+
+            .home-page .ai-card {
+                left: -5px;
+                top: 15px;
+            }
+
+            .home-page .soil-card {
+                right: -5px;
+                bottom: 15px;
+            }
+
+            .home-page .floating-card {
+                padding: 10px;
+            }
+
+            .home-page .card-value {
+                font-size: 14px;
+            }
+
+            .home-page .feature-container {
+                grid-template-columns: 1fr;
+            }
+
+            .home-page .section-heading h2 {
+                font-size: 27px;
+            }
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+
+            .home-page .hero-visual,
+            .home-page .floating-card {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="home-page">
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">🌱 FertiWise</div>
+
+        <nav class="nav-links">
+            <a href="index.html" data-i18n="home">Home</a>
+            <a href="dashboard.html" data-i18n="dashboard">Dashboard</a>
+            <a href="login.html" data-i18n="login">Login</a>
+            <a href="signup.html" data-i18n="signup">Sign Up</a>
+
+            <select id="languageSelect" class="language-select" aria-label="Select Language">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="bn">বাংলা</option>
+            </select>
+
+            <button class="theme-btn" id="themeToggle" type="button">
+                🌙 Dark Mode
+            </button>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-container">
+
+            <div class="hero-content">
+
+                <div class="small-title" data-i18n="tagline">
+                    🌿 AI-POWERED SMART FARMING
+                </div>
+
+                <h1>
+                    <span data-i18n="heroLine1">Smarter Farming.</span><br>
+                    <span data-i18n="heroLine2">Better Decisions.</span>
+                </h1>
+
+                <p class="hero-description" data-i18n="heroDescription">
+                    FertiWise helps farmers make smarter fertilizer decisions
+                    using soil information, crop data, environmental conditions
+                    and artificial intelligence.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="dashboard.html" class="primary-btn" data-i18n="getRecommendation">
+                        Get Recommendation →
+                    </a>
+
+                    <a href="#features" class="secondary-btn" data-i18n="learnMore">
+                        Learn More
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- FARMER VIDEO -->
+            <div class="hero-visual">
+
+                <div class="video-frame">
+
+                    <video class="farmer-video" autoplay muted loop playsinline preload="metadata"
+                        poster="assets/farmer-poster.jpg">
+
+                        <source src="assets/farmer-working.mp4" type="video/mp4">
+
+                        Your browser does not support HTML video.
+                    </video>
+
+                    <div class="video-overlay"></div>
+
+                    <div class="video-caption">
+                        🌾 Smart Farming, Better Future
+                    </div>
+
+                </div>
+
+                <div class="floating-card ai-card">
+                    <div class="card-heading">
+                        <span class="card-icon">🤖</span>
+                        AI Recommendation
+                    </div>
+                    <div class="card-value">Smart Fertilizer</div>
+                </div>
+
+                <div class="floating-card soil-card">
+                    <div class="card-heading">
+                        <span class="card-icon">🌱</span>
+                        Soil Analysis
+                    </div>
+                    <div class="card-value">Healthy Soil</div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features" id="features">
+
+        <div class="section-heading">
+            <h2 data-i18n="featuresHeading">
+                Everything You Need for Better Farming
+            </h2>
+            <p data-i18n="smartAgriculture">
+                SMART AGRICULTURE
+            </p>
+        </div>
+
+        <div class="feature-container">
+
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h3 data-i18n="fertilizerTitle">Fertilizer Recommendation</h3>
+                <p data-i18n="fertilizerDescription">
+                    Get intelligent fertilizer recommendations based on crop
+                    and soil conditions.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📷</div>
+                <h3 data-i18n="soilTitle">Soil Analysis</h3>
+                <p data-i18n="soilDescription">
+                    Analyze important soil parameters such as Nitrogen,
+                    Phosphorus, Potassium and moisture.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h3 data-i18n="assistantTitle">AI Assistant</h3>
+                <p data-i18n="assistantDescription">
+                    Get useful farming information and understand
+                    recommendations with an AI assistant.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3 data-i18n="dashboardTitle">Smart Dashboard</h3>
+                <p data-i18n="dashboardDescription">
+                    View your soil information, recommendations and
+                    farming history in one place.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p data-i18n="footer">
+            © 2026 FertiWise. Smart Agriculture with AI.
+        </p>
+    </footer>
+
+    <!-- THEME SCRIPT -->
+    <script>
+        const themeToggle = document.getElementById("themeToggle");
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+
+            try {
+                localStorage.setItem("fertwise_theme", theme);
+            } catch (error) {
+                console.warn("Could not save theme:", error);
+            }
+
+            if (themeToggle) {
+                themeToggle.textContent =
+                    theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+            }
+        }
+
+        applyTheme(localStorage.getItem("fertwise_theme") || "light");
+
+        if (themeToggle) {
+            themeToggle.addEventListener("click", function () {
+                const currentTheme =
+                    document.documentElement.getAttribute("data-theme");
+
+                applyTheme(currentTheme === "dark" ? "light" : "dark");
+            });
+        }
+    </script>
+
+    <script src="js/script.js"></script>
+    <script src="js/language.js"></script>
+
+</body>
+
+</html>

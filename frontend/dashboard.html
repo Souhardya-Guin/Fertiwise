@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FertiWise | Smart Agriculture Dashboard</title>
+
+    <script src="js/theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            color-scheme: light;
+            --page-bg: #f3f7f3;
+            --card-bg: #fff;
+            --text-color: #243629;
+            --muted-text: #66756a;
+            --heading-color: #176b3a;
+            --input-bg: #fff;
+            --input-border: #ccd8ce;
+            --table-border: #e1e8e2;
+            --table-head-bg: #eaf4ec;
+            --soft-bg: #f8fbf8;
+            --recommendation-bg: #eaf7ed;
+            --shadow: 0 4px 18px rgba(0, 0, 0, .06);
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --page-bg: #101a14;
+            --card-bg: #1b2920;
+            --text-color: #e5eee7;
+            --muted-text: #a8b8ac;
+            --heading-color: #83d69c;
+            --input-bg: #24352a;
+            --input-border: #435b49;
+            --table-border: #35483a;
+            --table-head-bg: #263c2d;
+            --soft-bg: #223329;
+            --recommendation-bg: #203c2b;
+            --shadow: 0 4px 18px rgba(0, 0, 0, .25);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-color);
+            transition: background .2s, color .2s;
+        }
+
+        /* HEADER */
+
+        header {
+            background: linear-gradient(120deg, #12552f, #21864d, #35a566);
+            color: white;
+            padding: 19px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, .13);
+        }
+
+        header h1 {
+            font-size: 27px;
+            letter-spacing: .5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        header button,
+        header select,
+        #themeToggle {
+            background: white;
+            color: #176b3a;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        html[data-theme="dark"] #themeToggle {
+            background: #263c2d;
+            color: #a6e8b7;
+            border: 1px solid #45644d;
+        }
+
+        /* MAIN CONTAINER */
+
+        .container {
+            max-width: 1450px;
+            margin: auto;
+            padding: 30px 25px;
+        }
+
+        /* WELCOME HERO */
+
+        .welcome {
+            background: linear-gradient(120deg, #12552f, #21864d, #42a66b);
+            color: white;
+            padding: 34px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(20, 100, 55, .18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome::after {
+            content: "🌱";
+            position: absolute;
+            right: 45px;
+            top: 5px;
+            font-size: 105px;
+            opacity: .15;
+        }
+
+        .welcome h2 {
+            color: white;
+            font-size: 27px;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #e2f5e8;
+            font-size: 15px;
+        }
+
+        /* OVERVIEW CARDS */
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 25px;
+        }
+
+        .overview-card {
+            background: var(--card-bg);
+            border: 1px solid var(--table-border);
+            border-radius: 15px;
+            padding: 21px;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+            min-width: 0;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 9px 25px rgba(0, 0, 0, .10);
+        }
+
+        .overview-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            background: var(--recommendation-bg);
+            margin-bottom: 14px;
+        }
+
+        .overview-card h3 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted-text);
+            margin-bottom: 9px;
+        }
+
+        .overview-value {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--heading-color);
+            overflow-wrap: anywhere;
+        }
+
+        .overview-subtitle {
+            font-size: 11px;
+            color: var(--muted-text);
+            margin-top: 7px;
+        }
+
+        /* QUICK NAVIGATION */
+
+        .quick-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+
+        .quick-navigation a {
+            text-decoration: none;
+            background: var(--card-bg);
+            color: var(--heading-color);
+            border: 1px solid var(--table-border);
+            padding: 11px 17px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .quick-navigation a:hover {
+            background: #21864d;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* GENERAL CARDS */
+
+        .card {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 27px;
+            border-radius: 16px;
+            margin-bottom: 27px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--table-border);
+        }
+
+        .card h2 {
+            color: var(--heading-color);
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        .card>p {
+            color: var(--muted-text);
+        }
+
+        /* FORM */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 7px;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            min-height: 44px;
+            padding: 11px;
+            border: 1px solid var(--input-border);
+            border-radius: 9px;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #21864d;
+            box-shadow: 0 0 0 3px rgba(33, 134, 77, .12);
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .primary-btn {
+            background: #21864d;
+            color: white;
+            border: none;
+            padding: 13px 22px;
+            border-radius: 9px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .primary-btn:hover {
+            background: #176b3a;
+            transform: translateY(-2px);
+        }
+
+        .primary-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .success {
+            color: #168044;
+        }
+
+        .error {
+            color: #d32f2f;
+        }
+
+        .recommendation-box {
+            display: none;
+            background: var(--recommendation-bg);
+            border-left: 5px solid #21864d;
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .recommendation-box h3 {
+            color: var(--heading-color);
+            margin-bottom: 10px;
+        }
+
+        .recommendation-text {
+            font-size: 20px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        /* TABLE */
+
+        .history-table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--table-border);
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: var(--table-head-bg);
+            color: var(--heading-color);
+        }
+
+        td {
+            color: var(--text-color);
+        }
+
+        tbody tr:hover {
+            background: var(--soft-bg);
+        }
+
+        /* CHARTS */
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 20px;
+            border: 1px solid var(--table-border);
+            border-radius: 14px;
+            min-width: 0;
+            height: 300px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-card h3 {
+            font-size: 15px;
+            color: var(--heading-color);
+            margin-bottom: 12px;
+        }
+
+        .chart-card canvas {
+            max-height: 230px;
+        }
+
+        /* CAMERA */
+
+        .camera-screen {
+            width: 100%;
+            max-width: 600px;
+            min-height: 250px;
+            background: #17251d;
+            border: 2px dashed #43865b;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        #soilCamera,
+        #soilPreview {
+            display: none;
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        .camera-placeholder {
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .camera-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .camera-buttons button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #21864d;
+            color: white;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .camera-buttons button:hover {
+            transform: translateY(-2px);
+        }
+
+        .camera-buttons button:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #soilCanvas {
+            display: none;
+        }
+
+        #soilAnalysisResult {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--recommendation-bg);
+            color: var(--text-color);
+            border-radius: 8px;
+        }
+
+        #soilAnalysisResult h3 {
+            color: var(--heading-color);
+            margin-bottom: 8px;
+        }
+
+        /* SAVED IMAGES */
+
+        .empty-message {
+            color: var(--muted-text);
+            padding: 12px 0;
+        }
+
+        .saved-image {
+            width: 150px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+        }
+
+        .saved-image-card {
+            background: var(--soft-bg);
+            color: var(--text-color);
+            border: 1px solid var(--table-border);
+            padding: 10px;
+            border-radius: 9px;
+        }
+
+        .saved-image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #176b3a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        html,
+        body,
+        .card,
+        .chart-card,
+        .saved-image-card,
+        input,
+        select,
+        td,
+        th {
+            transition: background-color .2s, color .2s, border-color .2s;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 900px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media(max-width: 600px) {
+            header {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 16px 12px;
+            }
+
+            .welcome {
+                padding: 23px;
+            }
+
+            .welcome h2 {
+                font-size: 21px;
+            }
+
+            .welcome::after {
+                right: 10px;
+                font-size: 65px;
+            }
+
+            .overview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .overview-card {
+                padding: 14px;
+            }
+
+            .overview-value {
+                font-size: 20px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .quick-navigation a {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header>
+        <h1>🌱 FertiWise</h1>
+
+        <div class="header-actions">
+
+            <button type="button" id="themeToggle">
+                🌙 Dark Mode
+            </button>
+
+            <select id="languageSelect" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="bn">বাংলা</option>
+            </select>
+
+            <button onclick="logout()" data-i18n="logout">
+                Logout
+            </button>
+
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+
+            <h2 data-i18n="dashboardWelcome">
+                Welcome to FertiWise Dashboard
+            </h2>
+
+            <p id="welcomeName">
+                Smart Fertilizer Recommendation System
+            </p>
+
+        </section>
+
+
+        <!-- DASHBOARD OVERVIEW -->
+
+        <section class="overview-grid">
+
+            <div class="overview-card">
+                <div class="overview-icon">📊</div>
+                <h3>Total Predictions</h3>
+                <div class="overview-value" id="totalPredictions">0</div>
+                <div class="overview-subtitle">Your saved prediction records</div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">🖼️</div>
+                <h3>Soil Images</h3>
+                <div class="overview-value" id="totalSoilImages">0</div>
+                <div class="overview-subtitle">Saved soil photographs</div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">🌾</div>
+                <h3>Latest Crop</h3>
+                <div class="overview-value" id="latestCrop" style="font-size:19px;">--</div>
+                <div class="overview-subtitle">From your latest prediction</div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">🧪</div>
+                <h3>Latest Fertilizer</h3>
+                <div class="overview-value" id="latestFertilizer" style="font-size:19px;">--</div>
+                <div class="overview-subtitle">Latest AI recommendation</div>
+            </div>
+
+        </section>
+
+
+        <!-- QUICK NAVIGATION -->
+
+        <nav class="quick-navigation">
+
+            <a href="#predictionForm">🌱 Prediction</a>
+            <a href="#cameraSection">📷 Camera</a>
+            <a href="#historySection">📊 History</a>
+            <a href="#analyticsSection">📈 Analytics</a>
+            <a href="#soilHealthSection">🧪 Soil Health</a>
+
+        </nav>
+
+
+        <!-- FERTILIZER RECOMMENDATION -->
+
+        <section class="card" id="predictionSection">
+
+            <h2 data-i18n="recommendationHeading">
+                🌾 Fertilizer Recommendation
+            </h2>
+
+            <p style="margin-bottom:18px;color:var(--muted-text);" data-i18n="recommendationDescription">
+                Select soil, crop and environmental details.
+            </p>
+
+            <form id="predictionForm">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label data-i18n="soilType">Soil Type</label>
+                        <select name="Soil_Type" required>
+                            <option value="" disabled selected data-i18n-option="selectSoilType">Select Soil Type
+                            </option>
+                            <option value="Black" data-i18n-option="black">Black</option>
+                            <option value="Red" data-i18n-option="red">Red</option>
+                            <option value="Alluvial" data-i18n-option="alluvial">Alluvial</option>
+                            <option value="Clay" data-i18n-option="clay">Clay</option>
+                            <option value="Sandy" data-i18n-option="sandy">Sandy</option>
+                            <option value="Loamy" data-i18n-option="loamy">Loamy</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="soilPH">Soil pH</label>
+                        <input name="Soil_pH" type="number" step="any" required placeholder="e.g. 6.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="soilMoisture">Soil Moisture</label>
+                        <input name="Soil_Moisture" type="number" step="any" required placeholder="e.g. 30">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="organicCarbon">Organic Carbon</label>
+                        <input name="Organic_Carbon" type="number" step="any" required placeholder="e.g. 45">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="electricalConductivity">Electrical Conductivity</label>
+                        <input name="Electrical_Conductivity" type="number" step="any" required placeholder="e.g. 20">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="nitrogenLevel">Nitrogen Level</label>
+                        <input name="Nitrogen_Level" type="number" step="any" required placeholder="e.g. 60">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="phosphorusLevel">Phosphorus Level</label>
+                        <input name="Phosphorus_Level" type="number" step="any" required placeholder="e.g. 56">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="potassiumLevel">Potassium Level</label>
+                        <input name="Potassium_Level" type="number" step="any" required placeholder="e.g. 55">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="temperature">Temperature (°C)</label>
+                        <input name="Temperature" type="number" step="any" required placeholder="e.g. 23">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="humidity">Humidity (%)</label>
+                        <input name="Humidity" type="number" step="any" required placeholder="e.g. 68">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="rainfall">Rainfall</label>
+                        <input name="Rainfall" type="number" step="any" required placeholder="e.g. 90">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="cropType">Crop Type</label>
+                        <select name="Crop_Type" required>
+                            <option value="" disabled selected data-i18n-option="selectCrop">Select Crop</option>
+                            <option value="Rice" data-i18n-option="rice">Rice</option>
+                            <option value="Wheat" data-i18n-option="wheat">Wheat</option>
+                            <option value="Maize" data-i18n-option="maize">Maize</option>
+                            <option value="Cotton" data-i18n-option="cotton">Cotton</option>
+                            <option value="Sugarcane" data-i18n-option="sugarcane">Sugarcane</option>
+                            <option value="Potato" data-i18n-option="potato">Potato</option>
+                            <option value="Tomato" data-i18n-option="tomato">Tomato</option>
+                            <option value="Onion" data-i18n-option="onion">Onion</option>
+                            <option value="Cabbage" data-i18n-option="cabbage">Cabbage</option>
+                            <option value="Vegetables" data-i18n-option="vegetables">Vegetables</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="cropGrowthStage">Crop Growth Stage</label>
+                        <select name="Crop_Growth_Stage" required>
+                            <option value="" disabled selected data-i18n-option="selectGrowthStage">Select Growth Stage
+                            </option>
+                            <option value="Seedling" data-i18n-option="seedling">Seedling</option>
+                            <option value="Vegetative" data-i18n-option="vegetative">Vegetative</option>
+                            <option value="Flowering" data-i18n-option="flowering">Flowering</option>
+                            <option value="Maturity" data-i18n-option="maturity">Maturity</option>
+                            <option value="Harvesting" data-i18n-option="harvesting">Harvesting</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="season">Season</label>
+                        <select name="Season" required>
+                            <option value="" disabled selected data-i18n-option="selectSeason">Select Season</option>
+                            <option value="Kharif" data-i18n-option="kharif">Kharif</option>
+                            <option value="Rabi" data-i18n-option="rabi">Rabi</option>
+                            <option value="Zaid" data-i18n-option="zaid">Zaid</option>
+                            <option value="Summer" data-i18n-option="summer">Summer</option>
+                            <option value="Winter" data-i18n-option="winter">Winter</option>
+                            <option value="Monsoon" data-i18n-option="monsoon">Monsoon</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="irrigationType">Irrigation Type</label>
+                        <select name="Irrigation_Type" required>
+                            <option value="" disabled selected data-i18n-option="selectIrrigation">Select Irrigation
+                                Type</option>
+                            <option value="Rainfed" data-i18n-option="rainfed">Rainfed</option>
+                            <option value="Drip" data-i18n-option="drip">Drip</option>
+                            <option value="Sprinkler" data-i18n-option="sprinkler">Sprinkler</option>
+                            <option value="Flood" data-i18n-option="flood">Flood</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="previousCrop">Previous Crop</label>
+                        <select name="Previous_Crop" required>
+                            <option value="" disabled selected data-i18n-option="selectPreviousCrop">Select Previous
+                                Crop</option>
+                            <option value="Rice" data-i18n-option="rice">Rice</option>
+                            <option value="Wheat" data-i18n-option="wheat">Wheat</option>
+                            <option value="Maize" data-i18n-option="maize">Maize</option>
+                            <option value="Potato" data-i18n-option="potato">Potato</option>
+                            <option value="Cotton" data-i18n-option="cotton">Cotton</option>
+                            <option value="Sugarcane" data-i18n-option="sugarcane">Sugarcane</option>
+                            <option value="Tomato" data-i18n-option="tomato">Tomato</option>
+                            <option value="Onion" data-i18n-option="onion">Onion</option>
+                            <option value="None" data-i18n-option="none">None</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="region">Region</label>
+                        <select name="Region" required>
+                            <option value="" disabled selected data-i18n-option="selectRegion">Select Region</option>
+                            <option value="West Bengal" data-i18n-option="westBengal">West Bengal</option>
+                            <option value="Punjab" data-i18n-option="punjab">Punjab</option>
+                            <option value="Haryana" data-i18n-option="haryana">Haryana</option>
+                            <option value="Bihar" data-i18n-option="bihar">Bihar</option>
+                            <option value="Uttar Pradesh" data-i18n-option="uttarPradesh">Uttar Pradesh</option>
+                            <option value="Maharashtra" data-i18n-option="maharashtra">Maharashtra</option>
+                            <option value="Gujarat" data-i18n-option="gujarat">Gujarat</option>
+                            <option value="Rajasthan" data-i18n-option="rajasthan">Rajasthan</option>
+                            <option value="Madhya Pradesh" data-i18n-option="madhyaPradesh">Madhya Pradesh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="fertilizerLastSeason">Fertilizer Used Last Season (Numeric Code)</label>
+                        <input name="Fertilizer_Used_Last_Season" type="number" step="any" required
+                            placeholder="e.g. 23">
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="yieldLastSeason">Yield Last Season</label>
+                        <input name="Yield_Last_Season" type="number" step="any" required placeholder="e.g. 2">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="primary-btn" id="predictionButton" data-i18n="getFertilizerRecommendation">
+                    Get Fertilizer Recommendation
+                </button>
+
+            </form>
+
+            <p id="predictionMessage" class="message"></p>
+
+            <div class="recommendation-box" id="recommendationBox">
+                <h3 data-i18n="recommendedFertilizer">🌱 Recommended Fertilizer</h3>
+                <p class="recommendation-text" id="recommendationText"></p>
+            </div>
+
+        </section>
+
+
+        <!-- CAMERA SOIL ANALYSIS -->
+
+        <section class="card" id="cameraSection">
+
+            <h2 data-i18n="cameraAnalysis">📷 Camera Soil Analysis</h2>
+
+            <p style="color:var(--muted-text);margin-bottom:18px;" data-i18n="cameraDescription">
+                Capture a soil image for visual inspection.
+            </p>
+
+            <div class="camera-screen">
+
+                <div class="camera-placeholder" id="cameraPlaceholder" data-i18n="cameraPreview">
+                    Camera preview will appear here.
+                </div>
+
+                <video id="soilCamera" autoplay playsinline muted></video>
+
+                <img id="soilPreview" alt="Captured soil image">
+
+            </div>
+
+            <canvas id="soilCanvas"></canvas>
+
+            <div class="camera-buttons">
+
+                <button type="button" id="startCameraBtn" onclick="startSoilCamera()" data-i18n="openCamera">
+                    Open Camera
+                </button>
+
+                <button type="button" id="captureCameraBtn" onclick="captureSoilImage()" disabled
+                    data-i18n="captureSoil">
+                    Capture Soil
+                </button>
+
+                <button type="button" id="stopCameraBtn" onclick="stopSoilCamera()" disabled data-i18n="stopCamera">
+                    Stop Camera
+                </button>
+
+                <button type="button" id="retakeCameraBtn" onclick="retakeSoilImage()" disabled data-i18n="retakePhoto">
+                    Retake Photo
+                </button>
+
+                <button type="button" id="analyzeSoilBtn" onclick="analyzeSoilImage()" disabled
+                    data-i18n="analyzeImage">
+                    Analyze Image
+                </button>
+
+                <button type="button" id="saveSoilBtn" onclick="saveSoilImage()" disabled data-i18n="saveSoilImage">
+                    Save Soil Image
+                </button>
+
+            </div>
+
+            <p id="cameraMessage" class="message" data-i18n="clickOpenCamera">
+                Click Open Camera to begin.
+            </p>
+
+            <div id="soilAnalysisResult">
+                <h3 data-i18n="visualAnalysisResult">Visual Analysis Result</h3>
+                <p id="soilAnalysisText"></p>
+            </div>
+
+        </section>
+
+
+        <!-- SAVED SOIL IMAGES -->
+
+        <section class="card">
+
+            <h2 data-i18n="savedSoilImages">🖼️ Saved Soil Images</h2>
+
+            <p id="savedImagesMessage" class="empty-message" data-i18n="loadingSavedImages">
+                Loading saved soil images...
+            </p>
+
+            <div id="savedImagesGrid" class="saved-image-grid"></div>
+
+        </section>
+
+
+        <!-- PREDICTION HISTORY -->
+
+        <section class="card" id="historySection">
+
+            <h2 data-i18n="predictionHistory">📊 Prediction History</h2>
+
+            <p id="historyMessage" class="empty-message" data-i18n="loadingHistory">
+                Loading prediction history...
+            </p>
+
+            <div class="history-table-wrapper">
+
+                <table id="historyTable" style="display:none;">
+
+                    <thead>
+                        <tr>
+                            <th data-i18n="date">Date</th>
+                            <th data-i18n="crop">Crop</th>
+                            <th data-i18n="soilType">Soil Type</th>
+                            <th data-i18n="nitrogenLevel">Nitrogen</th>
+                            <th data-i18n="phosphorusLevel">Phosphorus</th>
+                            <th data-i18n="potassiumLevel">Potassium</th>
+                            <th data-i18n="recommendation">Recommendation</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="historyBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS -->
+
+        <section class="card" id="analyticsSection">
+
+            <h2 data-i18n="soilCropAnalytics">📈 Soil & Crop Analytics</h2>
+
+            <p style="color:var(--muted-text);margin-bottom:18px;" data-i18n="analyticsDescription">
+                Analytics generated from your saved prediction records.
+            </p>
+
+            <p id="analyticsMessage" class="empty-message" data-i18n="loadingAnalytics">
+                Loading analytics...
+            </p>
+
+            <div class="chart-grid" id="chartGrid"></div>
+
+        </section>
+
+    </main>
+
+
+    <footer data-i18n="footerText">
+        FertiWise | Smart Agriculture & Fertilizer Recommendation System
+    </footer>
+
+
+    <!-- LANGUAGE SYSTEM -->
+
+    <script src="js/language.js"></script>
+
+
+    <script>
+
+        // ==========================================
+        // 1. USER SESSION
+        // ==========================================
+
+        let currentUser = null;
+
+        try {
+            currentUser = JSON.parse(
+                localStorage.getItem("fertwise_user") || "null"
+            );
+        } catch (error) {
+            currentUser = null;
+        }
+
+        if (!currentUser || !currentUser.id) {
+            alert("Please login first.");
+            window.location.href = "/login.html";
+        }
+
+        function updateWelcomeName() {
+            const name = currentUser?.name;
+
+            const welcomeText = name
+                ? `${fertiWiseTranslate("welcomeFarmer")}, ${name}!`
+                : fertiWiseTranslate("welcomeFarmer");
+
+            document.getElementById("welcomeName").textContent = welcomeText;
+        }
+
+        function logout() {
+            localStorage.removeItem("fertwise_user");
+            window.location.href = "/login.html";
+        }
+
+
+        // ==========================================
+        // 2. FEATURES
+        // ==========================================
+
+        const numericFeatures = [
+            "Soil_pH",
+            "Soil_Moisture",
+            "Organic_Carbon",
+            "Electrical_Conductivity",
+            "Nitrogen_Level",
+            "Phosphorus_Level",
+            "Potassium_Level",
+            "Temperature",
+            "Humidity",
+            "Rainfall",
+            "Fertilizer_Used_Last_Season",
+            "Yield_Last_Season"
+        ];
+
+        const categoricalFeatures = [
+            "Soil_Type",
+            "Crop_Type",
+            "Crop_Growth_Stage",
+            "Season",
+            "Irrigation_Type",
+            "Previous_Crop",
+            "Region"
+        ];
+
+        const allFeatures = [
+            "Soil_Type",
+            "Soil_pH",
+            "Soil_Moisture",
+            "Organic_Carbon",
+            "Electrical_Conductivity",
+            "Nitrogen_Level",
+            "Phosphorus_Level",
+            "Potassium_Level",
+            "Temperature",
+            "Humidity",
+            "Rainfall",
+            "Crop_Type",
+            "Crop_Growth_Stage",
+            "Season",
+            "Irrigation_Type",
+            "Previous_Crop",
+            "Region",
+            "Fertilizer_Used_Last_Season",
+            "Yield_Last_Season"
+        ];
+
+
+        // ==========================================
+        // 3. HISTORY FIELD NORMALIZATION
+        // ==========================================
+
+        function normalizeHistoryRecord(record) {
+            return {
+                ...record,
+
+                Soil_Type: record.Soil_Type ?? record.soil_type ?? record.soilType,
+                Soil_pH: record.Soil_pH ?? record.soil_ph,
+                Soil_Moisture: record.Soil_Moisture ?? record.soil_moisture,
+                Organic_Carbon: record.Organic_Carbon ?? record.organic_carbon,
+                Electrical_Conductivity: record.Electrical_Conductivity ?? record.electrical_conductivity,
+
+                Nitrogen_Level: record.Nitrogen_Level ?? record.nitrogen_level ?? record.nitrogen,
+                Phosphorus_Level: record.Phosphorus_Level ?? record.phosphorus_level ?? record.phosphorus,
+                Potassium_Level: record.Potassium_Level ?? record.potassium_level ?? record.potassium,
+
+                Temperature: record.Temperature ?? record.temperature,
+                Humidity: record.Humidity ?? record.humidity,
+                Rainfall: record.Rainfall ?? record.rainfall,
+
+                Crop_Type: record.Crop_Type ?? record.crop_type ?? record.crop_name,
+                Crop_Growth_Stage: record.Crop_Growth_Stage ?? record.crop_growth_stage,
+                Season: record.Season ?? record.season,
+                Irrigation_Type: record.Irrigation_Type ?? record.irrigation_type,
+                Previous_Crop: record.Previous_Crop ?? record.previous_crop,
+                Region: record.Region ?? record.region,
+
+                Fertilizer_Used_Last_Season:
+                    record.Fertilizer_Used_Last_Season ?? record.fertilizer_used_last_season,
+
+                Yield_Last_Season:
+                    record.Yield_Last_Season ?? record.yield_last_season,
+
+                recommendation:
+                    record.recommendation ||
+                    record.recommended_fertilizer ||
+                    record.fertilizer_recommendation ||
+                    record.predicted_fertilizer ||
+                    record.fertilizer ||
+                    "-"
+            };
+        }
+
+
+        // ==========================================
+        // 4. DASHBOARD OVERVIEW UPDATE
+        // ==========================================
+
+        function updateOverviewCards() {
+
+            document.getElementById("totalPredictions").textContent =
+                historyRecords.length;
+
+            const latestRecord = historyRecords[0];
+
+            document.getElementById("latestCrop").textContent =
+                latestRecord?.Crop_Type || "--";
+
+            document.getElementById("latestFertilizer").textContent =
+                latestRecord?.recommendation || "--";
+        }
+
+
+        // ==========================================
+        // 5. FERTILIZER PREDICTION
+        // ==========================================
+
+        document.getElementById("predictionForm")
+            .addEventListener("submit", async function (event) {
+
+                event.preventDefault();
+
+                const button = document.getElementById("predictionButton");
+                const message = document.getElementById("predictionMessage");
+                const recommendationBox = document.getElementById("recommendationBox");
+                const recommendationText = document.getElementById("recommendationText");
+
+                button.disabled = true;
+                button.textContent = fertiWiseTranslate("generatingRecommendation");
+                message.textContent = "";
+                message.className = "message";
+                recommendationBox.style.display = "none";
+
+                try {
+                    const formData = new FormData(this);
+
+                    const payload = {
+                        user_id: currentUser.id
+                    };
+
+                    for (const feature of allFeatures) {
+                        const value = formData.get(feature);
+
+                        if (value === null || String(value).trim() === "") {
+                            throw new Error(fertiWiseTranslate("fillAllFields"));
+                        }
+
+                        if (numericFeatures.includes(feature)) {
+                            const numberValue = Number(value);
+
+                            if (!Number.isFinite(numberValue)) {
+                                throw new Error(
+                                    fertiWiseTranslate("invalidNumber") + " " + feature
+                                );
+                            }
+
+                            payload[feature] = numberValue;
+
+                        } else {
+                            payload[feature] = String(value).trim();
+                        }
+                    }
+
+                    const response = await fetch("/api/predict", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        throw new Error(
+                            result.error || result.message || "Prediction failed"
+                        );
+                    }
+
+                    const recommendation =
+                        result.recommendation ||
+                        result.fertilizer_recommendation ||
+                        result.prediction;
+
+                    if (!recommendation) {
+                        throw new Error("Model returned an empty recommendation.");
+                    }
+
+                    recommendationText.textContent = recommendation;
+                    recommendationBox.style.display = "block";
+
+                    message.textContent =
+                        fertiWiseTranslate("predictionSuccess");
+
+                    message.className = "message success";
+
+                    await loadHistory();
+
+                } catch (error) {
+                    console.error("Prediction Error:", error);
+
+                    message.textContent = error.message;
+                    message.className = "message error";
+
+                } finally {
+                    button.disabled = false;
+
+                    button.textContent =
+                        fertiWiseTranslate("getFertilizerRecommendation");
+                }
+            });
+
+
+        // ==========================================
+        // 6. LOAD PREDICTION HISTORY
+        // ==========================================
+
+        let historyRecords = [];
+
+        async function loadHistory() {
+
+            const historyMessage = document.getElementById("historyMessage");
+            const historyTable = document.getElementById("historyTable");
+            const tbody = document.getElementById("historyBody");
+
+            try {
+                const response = await fetch(
+                    "/api/history?user_id=" +
+                    encodeURIComponent(currentUser.id)
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.message || result.error || "Could not load history"
+                    );
+                }
+
+                historyRecords = (result.history || []).map(normalizeHistoryRecord);
+
+                // Update dashboard overview cards
+                updateOverviewCards();
+
+                tbody.innerHTML = "";
+
+                if (historyRecords.length === 0) {
+
+                    historyTable.style.display = "none";
+
+                    historyMessage.textContent =
+                        fertiWiseTranslate("noHistory");
+
+                    document.getElementById("analyticsMessage").textContent =
+                        fertiWiseTranslate("noAnalytics");
+
+                    document.getElementById("chartGrid").innerHTML = "";
+
+                    activeCharts.forEach(chart => chart.destroy());
+                    activeCharts.length = 0;
+
+                    return;
+                }
+
+                historyTable.style.display = "table";
+
+                historyMessage.textContent =
+                    historyRecords.length + " " +
+                    fertiWiseTranslate("recordsFound");
+
+                historyRecords.forEach(record => {
+
+                    const row = document.createElement("tr");
+
+                    const values = [
+                        record.created_at || "-",
+                        record.Crop_Type || "-",
+                        record.Soil_Type || "-",
+                        record.Nitrogen_Level ?? "-",
+                        record.Phosphorus_Level ?? "-",
+                        record.Potassium_Level ?? "-",
+                        record.recommendation || "-"
+                    ];
+
+                    values.forEach(value => {
+
+                        const cell = document.createElement("td");
+
+                        cell.textContent =
+                            value === null || value === undefined || value === ""
+                                ? "-"
+                                : String(value);
+
+                        row.appendChild(cell);
+                    });
+
+                    tbody.appendChild(row);
+                });
+
+                renderAnalytics(historyRecords);
+
+                console.log("History loaded:", historyRecords);
+
+            } catch (error) {
+
+                console.error("History Error:", error);
+
+                historyMessage.textContent = error.message;
+                historyMessage.className = "message error";
+            }
+        }
+
+
+        // ==========================================
+        // 7. ANALYTICS CHARTS
+        // ==========================================
+
+        const activeCharts = [];
+
+        function updateChartTheme(theme) {
+
+            const isDark = theme === "dark";
+
+            Chart.defaults.color =
+                isDark ? "#d5e2d8" : "#526257";
+
+            Chart.defaults.borderColor =
+                isDark ? "#405347" : "#e1e8e2";
+
+            activeCharts.forEach(chart => {
+
+                if (chart.options.plugins?.legend?.labels) {
+                    chart.options.plugins.legend.labels.color =
+                        isDark ? "#d5e2d8" : "#526257";
+                }
+
+                if (chart.options.scales) {
+
+                    Object.values(chart.options.scales).forEach(scale => {
+
+                        if (scale.ticks) {
+                            scale.ticks.color =
+                                isDark ? "#d5e2d8" : "#526257";
+                        }
+
+                        if (scale.grid) {
+                            scale.grid.color =
+                                isDark ? "#405347" : "#e1e8e2";
+                        }
+                    });
+                }
+
+                chart.update();
+            });
+        }
+
+        window.addEventListener("fertwise-theme-change", function (event) {
+            updateChartTheme(event.detail.theme);
+        });
+
+
+        const featureTranslationKeys = {
+
+            Soil_pH: "soilPH",
+            Soil_Moisture: "soilMoisture",
+            Organic_Carbon: "organicCarbon",
+            Electrical_Conductivity: "electricalConductivity",
+            Nitrogen_Level: "nitrogenLevel",
+            Phosphorus_Level: "phosphorusLevel",
+            Potassium_Level: "potassiumLevel",
+            Temperature: "temperature",
+            Humidity: "humidity",
+            Rainfall: "rainfall",
+            Fertilizer_Used_Last_Season: "fertilizerLastSeason",
+            Yield_Last_Season: "yieldLastSeason",
+            Soil_Type: "soilType",
+            Crop_Type: "cropType",
+            Crop_Growth_Stage: "cropGrowthStage",
+            Season: "season",
+            Irrigation_Type: "irrigationType",
+            Previous_Crop: "previousCrop",
+            Region: "region"
+        };
+
+
+        function renderAnalytics(records) {
+
+            activeCharts.forEach(chart => chart.destroy());
+            activeCharts.length = 0;
+
+            const chartGrid = document.getElementById("chartGrid");
+            const analyticsMessage = document.getElementById("analyticsMessage");
+
+            chartGrid.innerHTML = "";
+
+            if (!records || records.length === 0) {
+                analyticsMessage.textContent =
+                    fertiWiseTranslate("noAnalytics");
+                return;
+            }
+
+            const orderedRecords = [...records].reverse();
+
+            // Numeric feature charts
+
+            numericFeatures.forEach(feature => {
+
+                const validRecords = orderedRecords.filter(record =>
+                    record[feature] !== null &&
+                    record[feature] !== undefined &&
+                    record[feature] !== "" &&
+                    Number.isFinite(Number(record[feature]))
+                );
+
+                if (validRecords.length > 0) {
+
+                    createChartCard(
+                        feature,
+                        "line",
+                        validRecords.map(record => record.created_at || "Prediction"),
+                        validRecords.map(record => Number(record[feature])),
+                        fertiWiseTranslate("numericalValue")
+                    );
+                }
+            });
+
+
+            // Categorical feature charts
+
+            categoricalFeatures.forEach(feature => {
+
+                const counts = {};
+
+                orderedRecords.forEach(record => {
+
+                    const value = record[feature];
+
+                    if (value !== null && value !== undefined && value !== "") {
+                        counts[value] = (counts[value] || 0) + 1;
+                    }
+                });
+
+                if (Object.keys(counts).length > 0) {
+
+                    createChartCard(
+                        feature,
+                        "bar",
+                        Object.keys(counts),
+                        Object.values(counts),
+                        fertiWiseTranslate("numberOfRecords")
+                    );
+                }
+            });
+
+            analyticsMessage.textContent =
+                fertiWiseTranslate("showing") + " " +
+                records.length + " " +
+                fertiWiseTranslate("historicalRecords");
+        }
+
+
+        function createChartCard(feature, chartType, labels, values, seriesLabel) {
+
+            const chartGrid = document.getElementById("chartGrid");
+
+            const card = document.createElement("div");
+            card.className = "chart-card";
+
+            const heading = document.createElement("h3");
+
+            const translationKey = featureTranslationKeys[feature];
+
+            heading.textContent = translationKey
+                ? fertiWiseTranslate(translationKey)
+                : feature.replaceAll("_", " ");
+
+            const canvas = document.createElement("canvas");
+
+            card.appendChild(heading);
+            card.appendChild(canvas);
+            chartGrid.appendChild(card);
+
+            const isDark =
+                document.documentElement.getAttribute("data-theme") === "dark";
+
+            const chart = new Chart(canvas, {
+
+                type: chartType,
+
+                data: {
+                    labels: labels,
+
+                    datasets: [{
+                        label: seriesLabel,
+                        data: values,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: chartType === "line" ? 4 : 0
+                    }]
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: isDark ? "#d5e2d8" : "#526257"
+                            }
+                        }
+                    },
+
+                    scales: {
+
+                        x: {
+                            ticks: {
+                                color: isDark ? "#d5e2d8" : "#526257"
+                            },
+                            grid: {
+                                color: isDark ? "#405347" : "#e1e8e2"
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: chartType === "bar",
+                            ticks: {
+                                color: isDark ? "#d5e2d8" : "#526257"
+                            },
+                            grid: {
+                                color: isDark ? "#405347" : "#e1e8e2"
+                            }
+                        }
+                    }
+                }
+            });
+
+            activeCharts.push(chart);
+        }
+
+
+        // ==========================================
+        // 8. CAMERA SOIL ANALYSIS
+        // ==========================================
+
+        let soilCameraStream = null;
+        let capturedSoilImage = null;
+        let cocoModel = null;
+        let soilImageSaved = false;
+
+        const soilVideo = document.getElementById("soilCamera");
+        const soilCanvas = document.getElementById("soilCanvas");
+        const soilPreview = document.getElementById("soilPreview");
+        const cameraMessage = document.getElementById("cameraMessage");
+
+
+        async function startSoilCamera() {
+
+            try {
+
+                stopSoilCamera();
+
+                capturedSoilImage = null;
+                soilImageSaved = false;
+
+                soilPreview.style.display = "none";
+
+                document.getElementById("saveSoilBtn").disabled = true;
+
+                document.getElementById("saveSoilBtn").textContent =
+                    fertiWiseTranslate("saveSoilImage");
+
+                document.getElementById("soilAnalysisResult").style.display = "none";
+
+                if (!navigator.mediaDevices ||
+                    !navigator.mediaDevices.getUserMedia) {
+
+                    throw new Error(
+                        "Camera is unavailable. Open the app through localhost."
+                    );
+                }
+
+                soilCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                soilVideo.srcObject = soilCameraStream;
+
+                await soilVideo.play();
+
+                soilVideo.style.display = "block";
+
+                document.getElementById("cameraPlaceholder").style.display = "none";
+                document.getElementById("captureCameraBtn").disabled = false;
+                document.getElementById("stopCameraBtn").disabled = false;
+                document.getElementById("retakeCameraBtn").disabled = true;
+                document.getElementById("analyzeSoilBtn").disabled = true;
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("cameraStarted");
+
+            } catch (error) {
+
+                console.error("Camera Error:", error);
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("cameraError") + " " + error.message;
+            }
+        }
+
+
+        function captureSoilImage() {
+
+            if (!soilCameraStream || !soilVideo.videoWidth) {
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("openCameraFirst");
+
+                return;
+            }
+
+            soilCanvas.width = soilVideo.videoWidth;
+            soilCanvas.height = soilVideo.videoHeight;
+
+            const context = soilCanvas.getContext("2d");
+
+            context.drawImage(
+                soilVideo,
+                0,
+                0,
+                soilCanvas.width,
+                soilCanvas.height
+            );
+
+            capturedSoilImage = soilCanvas.toDataURL("image/jpeg", 0.85);
+            soilImageSaved = false;
+
+            soilPreview.src = capturedSoilImage;
+            soilPreview.style.display = "block";
+            soilVideo.style.display = "none";
+
+            stopSoilCamera();
+
+            document.getElementById("retakeCameraBtn").disabled = false;
+            document.getElementById("analyzeSoilBtn").disabled = false;
+            document.getElementById("saveSoilBtn").disabled = false;
+            document.getElementById("captureCameraBtn").disabled = true;
+            document.getElementById("cameraPlaceholder").style.display = "none";
+
+            cameraMessage.textContent =
+                fertiWiseTranslate("imageCaptured");
+        }
+
+
+        function stopSoilCamera() {
+
+            if (soilCameraStream) {
+
+                soilCameraStream.getTracks().forEach(track => track.stop());
+
+                soilCameraStream = null;
+            }
+
+            document.getElementById("stopCameraBtn").disabled = true;
+            document.getElementById("captureCameraBtn").disabled = true;
+        }
+
+
+        async function retakeSoilImage() {
+
+            capturedSoilImage = null;
+            soilImageSaved = false;
+
+            soilPreview.style.display = "none";
+
+            document.getElementById("saveSoilBtn").disabled = true;
+
+            document.getElementById("saveSoilBtn").textContent =
+                fertiWiseTranslate("saveSoilImage");
+
+            await startSoilCamera();
+        }
+
+
+        // ==========================================
+        // 9. SAVE SOIL IMAGE
+        // ==========================================
+
+        async function saveSoilImage() {
+
+            const button = document.getElementById("saveSoilBtn");
+
+            if (!capturedSoilImage) {
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("captureImageFirst");
+
+                return;
+            }
+
+            if (soilImageSaved) {
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("imageAlreadySaved");
+
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = fertiWiseTranslate("savingImage");
+
+            cameraMessage.className = "message";
+
+            cameraMessage.textContent =
+                fertiWiseTranslate("uploadingImage");
+
+            try {
+
+                const imageBlob = await fetch(capturedSoilImage)
+                    .then(response => response.blob());
+
+                const formData = new FormData();
+
+                formData.append("user_id", currentUser.id);
+                formData.append("image", imageBlob, "soil-image.jpg");
+
+                const response = await fetch("/api/soil-image", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+
+                    throw new Error(
+                        result.message || result.error ||
+                        "Could not save soil image."
+                    );
+                }
+
+                soilImageSaved = true;
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("imageSavedSuccessfully");
+
+                cameraMessage.className = "message success";
+
+                button.textContent =
+                    fertiWiseTranslate("imageSaved");
+
+                await loadSavedSoilImages();
+
+            } catch (error) {
+
+                console.error("Save Soil Image Error:", error);
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("imageSavingFailed") + " " + error.message;
+
+                cameraMessage.className = "message error";
+
+                button.disabled = false;
+
+                button.textContent =
+                    fertiWiseTranslate("saveSoilImage");
+            }
+        }
+
+
+        // ==========================================
+        // 10. LOAD SAVED SOIL IMAGES
+        // ==========================================
+
+        async function loadSavedSoilImages() {
+
+            const message = document.getElementById("savedImagesMessage");
+            const grid = document.getElementById("savedImagesGrid");
+
+            try {
+
+                const response = await fetch(
+                    "/api/soil-images?user_id=" +
+                    encodeURIComponent(currentUser.id)
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+
+                    throw new Error(
+                        result.message || result.error ||
+                        "Could not load saved images."
+                    );
+                }
+
+                grid.innerHTML = "";
+
+                const images = result.images || [];
+
+                // Update saved image overview card
+                document.getElementById("totalSoilImages").textContent =
+                    images.length;
+
+                if (images.length === 0) {
+
+                    message.textContent =
+                        fertiWiseTranslate("noSavedImages");
+
+                    return;
+                }
+
+                message.textContent =
+                    images.length + " " +
+                    fertiWiseTranslate("savedImagesFound");
+
+                images.forEach(item => {
+
+                    const card = document.createElement("div");
+                    card.className = "saved-image-card";
+
+                    const image = document.createElement("img");
+
+                    image.className = "saved-image";
+                    image.src = item.image_url;
+                    image.alt = fertiWiseTranslate("savedSoilImage");
+                    image.loading = "lazy";
+
+                    const date = document.createElement("p");
+
+                    date.style.marginTop = "7px";
+                    date.style.fontSize = "12px";
+
+                    date.textContent =
+                        item.created_at ||
+                        fertiWiseTranslate("savedSoilImage");
+
+                    card.appendChild(image);
+                    card.appendChild(date);
+
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+
+                console.error("Load Saved Images Error:", error);
+
+                message.textContent = error.message;
+            }
+        }
+
+
+        // ==========================================
+        // 11. VISUAL IMAGE ANALYSIS
+        // ==========================================
+
+        async function analyzeSoilImage() {
+
+            if (!capturedSoilImage) {
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("captureImageFirst");
+
+                return;
+            }
+
+            const button = document.getElementById("analyzeSoilBtn");
+
+            button.disabled = true;
+
+            try {
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("loadingDetectionModel");
+
+                if (!cocoModel) {
+                    cocoModel = await cocoSsd.load();
+                }
+
+                const predictions = await cocoModel.detect(soilPreview);
+
+                const personDetected = predictions.some(
+                    item => item.class === "person" && item.score >= 0.60
+                );
+
+                const resultBox =
+                    document.getElementById("soilAnalysisResult");
+
+                const resultText =
+                    document.getElementById("soilAnalysisText");
+
+                resultBox.style.display = "block";
+
+                if (personDetected) {
+
+                    resultText.textContent =
+                        fertiWiseTranslate("personDetected");
+
+                    cameraMessage.textContent =
+                        fertiWiseTranslate("retakeImage");
+
+                } else {
+
+                    resultText.textContent =
+                        fertiWiseTranslate("noPersonDetected");
+
+                    cameraMessage.textContent =
+                        fertiWiseTranslate("analysisCompleted");
+                }
+
+            } catch (error) {
+
+                console.error("Image Analysis Error:", error);
+
+                cameraMessage.textContent =
+                    fertiWiseTranslate("analysisFailed") + " " + error.message;
+
+            } finally {
+
+                button.disabled = false;
+            }
+        }
+
+
+        // ==========================================
+        // 12. LANGUAGE CHANGE
+        // ==========================================
+
+        document.getElementById("languageSelect")
+            ?.addEventListener("change", function () {
+
+                updateWelcomeName();
+
+                if (historyRecords.length > 0) {
+                    renderAnalytics(historyRecords);
+                }
+            });
+
+
+        // ==========================================
+        // 13. INITIAL DASHBOARD LOAD
+        // ==========================================
+
+        updateWelcomeName();
+
+        updateChartTheme(
+            document.documentElement.getAttribute("data-theme") || "light"
+        );
+
+        loadHistory();
+        loadSavedSoilImages();
+
+
+        // ==========================================
+        // 14. CHECK BACKEND
+        // ==========================================
+
+        async function checkBackend() {
+
+            try {
+
+                const response = await fetch("/api/status");
+                const result = await response.json();
+
+                if (!result.success || !result.model_loaded) {
+                    console.warn("Backend or ML model is not ready.", result);
+                }
+
+            } catch (error) {
+
+                console.error("Backend connection error:", error);
+            }
+        }
+
+        checkBackend();
+
+
+        // ==========================================
+        // 15. CLEANUP CAMERA
+        // ==========================================
+
+        window.addEventListener("beforeunload", function () {
+            stopSoilCamera();
+        });
+
+    </script>
+
+
+    <!-- EXISTING ADDITIONAL FEATURES: DO NOT REMOVE -->
+
+    <script src="js/chatbot.js"></script>
+    <script src="js/soil-health.js"></script>
+    <script src="js/fertilizer-calculator.js"></script>
+    <script src="js/pdf-report.js"></script>
+    <script src="js/crop-calendar.js"></script>
+
+</body>
+
+</html>

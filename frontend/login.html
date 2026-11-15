@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | FertiWise</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        :root {
+            color-scheme: light;
+            --page-bg: linear-gradient(-45deg, #e8f5e9, #dcfce7, #f0fdf4, #bbf7d0);
+            --card-bg: rgba(255, 255, 255, 0.94);
+            --panel-bg: #ffffff;
+            --heading: #14532d;
+            --text: #334155;
+            --muted: #64748b;
+            --input-bg: #f8fafc;
+            --input-border: #e2e8f0;
+            --input-text: #1e293b;
+            --select-bg: #f0fdf4;
+            --select-text: #166534;
+            --soft-green: #dcfce7;
+            --shadow: rgba(20, 83, 45, 0.14);
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --page-bg: linear-gradient(-45deg, #071b12, #102b1d, #132c20, #0b2117);
+            --card-bg: rgba(20, 35, 27, 0.97);
+            --panel-bg: #14251c;
+            --heading: #bbf7d0;
+            --text: #e2e8f0;
+            --muted: #a3b3a8;
+            --input-bg: #1c3025;
+            --input-border: #365442;
+            --input-text: #f0fdf4;
+            --select-bg: #203b2b;
+            --select-text: #bbf7d0;
+            --soft-green: #244632;
+            --shadow: rgba(0, 0, 0, 0.35);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--page-bg);
+            background-size: 400% 400%;
+            animation: backgroundMove 14s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 18px;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes backgroundMove {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(2px);
+        }
+
+        body::before {
+            width: 260px;
+            height: 260px;
+            background: rgba(34, 197, 94, 0.15);
+            top: 5%;
+            left: 5%;
+            animation: floatOne 9s ease-in-out infinite;
+        }
+
+        body::after {
+            width: 320px;
+            height: 320px;
+            background: rgba(21, 128, 61, 0.10);
+            right: 4%;
+            bottom: 3%;
+            animation: floatTwo 12s ease-in-out infinite;
+        }
+
+        @keyframes floatOne {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(45px, 35px) scale(1.15);
+            }
+        }
+
+        @keyframes floatTwo {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-40px, -35px) scale(1.12);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 620px;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px var(--shadow);
+            animation: appear 0.7s ease;
+            position: relative;
+            z-index: 1;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .left-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, #052e16, #166534, #22c55e);
+            color: white;
+            padding: 55px 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .left-panel::before,
+        .left-panel::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            pointer-events: none;
+        }
+
+        .left-panel::before {
+            width: 350px;
+            height: 350px;
+            right: -140px;
+            top: -120px;
+        }
+
+        .left-panel::after {
+            width: 250px;
+            height: 250px;
+            left: -120px;
+            bottom: -100px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 55px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.17);
+            font-size: 27px;
+        }
+
+        .brand-name {
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tagline {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 22px;
+            color: #dcfce7;
+        }
+
+        .left-panel h1 {
+            font-size: clamp(30px, 4vw, 43px);
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .left-panel p {
+            color: #dcfce7;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            max-width: 390px;
+        }
+
+        .features {
+            list-style: none;
+            display: grid;
+            gap: 17px;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #f0fdf4;
+        }
+
+        .feature-icon {
+            width: 29px;
+            height: 29px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.16);
+            color: #bbf7d0;
+        }
+
+        .left-bottom {
+            position: relative;
+            z-index: 1;
+            margin-top: 55px;
+            color: #bbf7d0;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .right-panel {
+            padding: 42px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--panel-bg);
+            transition: background 0.3s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 45px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 10px 14px;
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--select-bg);
+            color: var(--select-text);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .theme-toggle {
+            padding: 10px 13px;
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--select-bg);
+            color: var(--select-text);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            border-color: #22c55e;
+        }
+
+        .welcome-icon {
+            width: 53px;
+            height: 53px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: var(--soft-green);
+            font-size: 25px;
+            margin-bottom: 20px;
+        }
+
+        .right-panel h2 {
+            color: var(--heading);
+            font-size: 31px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .intro {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 17px;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 12px;
+            background: var(--input-bg);
+            font-size: 14px;
+            color: var(--input-text);
+            outline: none;
+            transition: 0.25s;
+        }
+
+        input:focus {
+            background: var(--panel-bg);
+            border-color: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.10);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .password-box input {
+            padding-right: 75px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #15803d;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        html[data-theme="dark"] .toggle-password {
+            color: #86efac;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(110deg, #15803d, #22c55e);
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.22);
+            transition: 0.25s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(22, 163, 74, 0.30);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .signup-text {
+            text-align: center;
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .signup-text a {
+            color: #15803d;
+            text-decoration: none;
+            font-weight: 800;
+            margin-left: 4px;
+        }
+
+        html[data-theme="dark"] .signup-text a {
+            color: #86efac;
+        }
+
+        .signup-text a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 38px;
+        }
+
+        @media (max-width: 750px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                max-width: 480px;
+                grid-template-columns: 1fr;
+                border-radius: 22px;
+            }
+
+            .left-panel {
+                padding: 30px 28px;
+            }
+
+            .brand {
+                margin-bottom: 28px;
+            }
+
+            .left-panel h1 {
+                font-size: 29px;
+            }
+
+            .left-panel p {
+                margin-bottom: 20px;
+            }
+
+            .features {
+                gap: 11px;
+            }
+
+            .left-bottom {
+                margin-top: 25px;
+            }
+
+            .right-panel {
+                padding: 32px 27px;
+            }
+
+            .top-bar {
+                margin-bottom: 30px;
+            }
+
+            .footer {
+                margin-top: 28px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .right-panel {
+                padding: 28px 20px;
+            }
+
+            .left-panel {
+                padding: 28px 22px;
+            }
+
+            .top-bar {
+                justify-content: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            body,
+            body::before,
+            body::after,
+            .container {
+                animation: none !important;
+            }
+        }
+    </style>
+
+    <!-- Apply saved theme before page renders -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("fertwise_theme") || "light";
+            document.documentElement.dataset.theme =
+                savedTheme === "dark" ? "dark" : "light";
+        })();
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="left-panel">
+
+            <div class="brand">
+                <div class="brand-icon">🌱</div>
+                <div class="brand-name">FertiWise</div>
+            </div>
+
+            <div class="left-content">
+
+                <div class="tagline">
+                    SMART FARMING • SMART FUTURE
+                </div>
+
+                <h1 data-i18n="loginWelcomeTitle">
+                    Welcome to FertiWise
+                </h1>
+
+                <p data-i18n="loginWelcomeDescription">
+                    Smart fertilizer recommendations for healthier crops
+                    and better farming decisions.
+                </p>
+
+                <ul class="features">
+                    <li>
+                        <span class="feature-icon">✦</span>
+                        <span data-i18n="loginFeature1">
+                            AI-Based Fertilizer Recommendation
+                        </span>
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✦</span>
+                        <span data-i18n="loginFeature2">
+                            Smart Soil Analysis
+                        </span>
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✦</span>
+                        <span data-i18n="loginFeature3">
+                            Crop Health Monitoring
+                        </span>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="left-bottom">
+                🌿 GROW SMARTER. FARM BETTER.
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+
+            <div class="top-bar">
+
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    🌙 Dark Mode
+                </button>
+
+                <select id="languageSelect" aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+
+            </div>
+
+            <div class="welcome-icon">👋</div>
+
+            <h2 data-i18n="welcomeBack">
+                Welcome Back!
+            </h2>
+
+            <p class="intro" data-i18n="loginIntro">
+                Login to access your FertiWise dashboard.
+            </p>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="email" data-i18n="emailAddress">
+                        Email Address
+                    </label>
+
+                    <div class="input-box">
+                        <span class="input-icon">✉️</span>
+
+                        <input type="email" id="email" name="email" placeholder="Enter your email"
+                            data-i18n-placeholder="emailLoginPlaceholder" required>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password" data-i18n="password">
+                        Password
+                    </label>
+
+                    <div class="input-box password-box">
+
+                        <span class="input-icon">🔒</span>
+
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            data-i18n-placeholder="loginPasswordPlaceholder" required>
+
+                        <button type="button" class="toggle-password" id="togglePassword" data-i18n="showPassword">
+                            SHOW
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button type="submit" class="login-btn" data-i18n="loginButton">
+                    Login →
+                </button>
+
+            </form>
+
+            <p class="signup-text">
+                <span data-i18n="noAccount">
+                    Don't have an account?
+                </span>
+
+                <a href="/signup.html" data-i18n="createAccountLink">
+                    Create Account
+                </a>
+            </p>
+
+            <div class="footer" data-i18n="loginFooter">
+                © 2026 FertiWise. All rights reserved.
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // =====================================
+        // THEME MANAGEMENT
+        // =====================================
+
+        const themeToggle = document.getElementById("themeToggle");
+
+        function applyTheme(theme) {
+
+            const selectedTheme = theme === "dark" ? "dark" : "light";
+
+            document.documentElement.dataset.theme = selectedTheme;
+
+            localStorage.setItem("fertwise_theme", selectedTheme);
+
+            themeToggle.textContent =
+                selectedTheme === "dark"
+                    ? "☀️ Light Mode"
+                    : "🌙 Dark Mode";
+
+            themeToggle.setAttribute(
+                "aria-label",
+                selectedTheme === "dark"
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+            );
+        }
+
+        applyTheme(localStorage.getItem("fertwise_theme") || "light");
+
+        themeToggle.addEventListener("click", function () {
+
+            const currentTheme =
+                document.documentElement.dataset.theme;
+
+            applyTheme(currentTheme === "dark" ? "light" : "dark");
+
+        });
+
+        // =====================================
+        // PASSWORD VISIBILITY
+        // =====================================
+
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+
+        const passwordLabels = {
+            en: { show: "SHOW", hide: "HIDE" },
+            hi: { show: "दिखाएं", hide: "छिपाएं" },
+            bn: { show: "দেখান", hide: "লুকান" }
+        };
+
+        function updatePasswordLabel() {
+
+            const language =
+                localStorage.getItem("fertwise_language") || "en";
+
+            const labels =
+                passwordLabels[language] || passwordLabels.en;
+
+            togglePassword.textContent =
+                passwordInput.type === "password"
+                    ? labels.show
+                    : labels.hide;
+        }
+
+        togglePassword.addEventListener("click", function () {
+
+            passwordInput.type =
+                passwordInput.type === "password"
+                    ? "text"
+                    : "password";
+
+            updatePasswordLabel();
+
+        });
+
+        document.getElementById("languageSelect")
+            .addEventListener("change", updatePasswordLabel);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            updatePasswordLabel();
+        });
+    </script>
+
+    <script src="js/script.js"></script>
+    <script src="js/language.js"></script>
+
+</body>
+
+</html>
